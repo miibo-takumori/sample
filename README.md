@@ -1,62 +1,224 @@
-# Sample
+# Calculator API
 
-Simple overview of use/purpose.
+シンプルな計算機能を提供するGolang製のRESTful APIサンプルプロジェクト
 
-## Description
+## 特徴
 
-An in-depth paragraph about your project and overview of use.
+- 基本的な四則演算（加算、減算、乗算、除算）
+- 統計計算（平均、中央値、標準偏差）
+- クリーンアーキテクチャに基づいたディレクトリ構成
+- JSONレスポンス
+- エラーハンドリング
 
-## Getting Started
+## ディレクトリ構成
 
-### Dependencies
-
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
-
-### Installing
-
-* How/where to download your program
-* Any modifications needed to be made to files/folders
-
-### Executing program
-
-* How to run the program
-* Step-by-step bullets
 ```
-code blocks for commands
+.
+├── main.go                 # エントリーポイント
+├── go.mod                  # Go modules定義
+├── README.md              
+├── cmd/
+│   └── server/
+│       └── main.go        # サーバー起動処理
+├── internal/
+│   ├── handler/           # HTTPハンドラー
+│   │   └── calculator.go
+│   ├── service/           # ビジネスロジック
+│   │   └── calculator.go
+│   └── model/             # データモデル
+│       └── request.go
+└── pkg/
+    └── calculator/        # 計算ロジック（再利用可能）
+        ├── basic.go
+        └── statistics.go
 ```
 
-## Help
+## セットアップ
 
-Any advise for common problems or issues.
+### 必要要件
+
+- Go 1.21以上
+
+### インストール
+
+```bash
+# リポジトリのクローン
+git clone <your-repo-url>
+cd calculator-api
+
+# 依存関係のインストール
+go mod download
+
+# ビルド
+go build -o calculator-api ./cmd/server
 ```
-command to run if program contains helper info
+
+## 実行
+
+```bash
+# 開発モードで実行
+go run cmd/server/main.go
+
+# またはビルド済みバイナリを実行
+./calculator-api
 ```
 
-## Authors
+サーバーは `http://localhost:8080` で起動します。
 
-Contributors names and contact info
+## API エンドポイント
 
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
+### 1. 基本計算
 
-## Version History
+#### 加算
+```bash
+POST /api/v1/calculate/add
+Content-Type: application/json
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
+{
+  "numbers": [10, 20, 30]
+}
 
-## License
+# レスポンス
+{
+  "result": 60,
+  "operation": "addition"
+}
+```
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+#### 減算
+```bash
+POST /api/v1/calculate/subtract
+Content-Type: application/json
 
-## Acknowledgments
+{
+  "numbers": [100, 30, 20]
+}
 
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+# レスポンス
+{
+  "result": 50,
+  "operation": "subtraction"
+}
+```
+
+#### 乗算
+```bash
+POST /api/v1/calculate/multiply
+Content-Type: application/json
+
+{
+  "numbers": [5, 4, 3]
+}
+
+# レスポンス
+{
+  "result": 60,
+  "operation": "multiplication"
+}
+```
+
+#### 除算
+```bash
+POST /api/v1/calculate/divide
+Content-Type: application/json
+
+{
+  "numbers": [100, 2, 5]
+}
+
+# レスポンス
+{
+  "result": 10,
+  "operation": "division"
+}
+```
+
+### 2. 統計計算
+
+#### 平均
+```bash
+POST /api/v1/statistics/average
+Content-Type: application/json
+
+{
+  "numbers": [10, 20, 30, 40, 50]
+}
+
+# レスポンス
+{
+  "result": 30,
+  "operation": "average",
+  "count": 5
+}
+```
+
+#### 中央値
+```bash
+POST /api/v1/statistics/median
+Content-Type: application/json
+
+{
+  "numbers": [1, 3, 5, 7, 9]
+}
+
+# レスポンス
+{
+  "result": 5,
+  "operation": "median",
+  "count": 5
+}
+```
+
+#### 標準偏差
+```bash
+POST /api/v1/statistics/stddev
+Content-Type: application/json
+
+{
+  "numbers": [2, 4, 6, 8, 10]
+}
+
+# レスポンス
+{
+  "result": 2.8284271247461903,
+  "operation": "standard_deviation",
+  "count": 5
+}
+```
+
+### 3. ヘルスチェック
+
+```bash
+GET /health
+
+# レスポンス
+{
+  "status": "ok"
+}
+```
+
+## テスト
+
+```bash
+# 全テストの実行
+go test ./...
+
+# カバレッジ付き
+go test -cover ./...
+
+# 詳細出力
+go test -v ./...
+```
+
+## 開発
+
+### 新しい計算機能の追加
+
+1. `pkg/calculator/` に新しい計算ロジックを追加
+2. `internal/service/calculator.go` にサービスメソッドを追加
+3. `internal/handler/calculator.go` にハンドラーを追加
+4. `cmd/server/main.go` でルーティングを設定
+
+## ライセンス
+
+MIT License
